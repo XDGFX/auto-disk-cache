@@ -1,0 +1,10 @@
+[Unit]
+Description=Temporarily cache new files before they are properly backed up
+
+[Service]
+Type=simple
+Restart=always
+ExecStart=/bin/bash /opt/auto-disk-cache/sync.sh
+
+[Install]
+WantedBy=multi-user.target

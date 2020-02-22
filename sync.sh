@@ -7,9 +7,9 @@ echo "Running on $now $(date +"%T")"
 
 # --- START OF VARIABLES ---
 
-source="/mnt/uluru/Documents"
+source="/mnt/uluru"
 destination="/media/wombat/auto-disk-cache"
-days=2
+days=7
 
 # --- END OF VARIABLES ---
 
