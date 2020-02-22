@@ -1,36 +1,60 @@
 #!/usr/bin/env bash
-VERS="1.0.0"
-NOW=$(date +"%d-%m-%y")
+vers="1.1.0"
+now=$(date +"%d-%m-%y")
 
-echo "--- auto disk cache v$VERS ---"
-echo "Running on $NOW $(date +"%T")"
+echo "--- auto disk cache v$vers ---"
+echo "Running on $now $(date +"%T")"
 
-# -- START OF VARIABLES --
+# --- START OF VARIABLES ---
 
-SOURCE=/mnt/uluru
-DESTINATION=/media/wombat/auto-disk-cache
-DAYS=7
+source="/mnt/uluru/Documents"
+destination="/media/wombat/auto-disk-cache"
+days=2
 
-# -- END OF VARIABLES --
+# --- END OF VARIABLES ---
 
-echo "Checking for old directories..."
+sync_dest="${destination}/${now}"  # Initial dest assignment
+initial_run=true
 
-while [[ $(find "$DESTINATION" -maxdepth 1 -type d | wc -l) -gt $((DAYS + 1)) ]]
-do
-    echo $file
-    IFS= read -r -d $'\0' line < <(find "$DESTINATION" -maxdepth 1 -printf '%T@ %p\0' 2>/dev/null | sort -z -n)
-    file="${line#* }"
+# --- START OF FUNCTIONS ---
 
-    rm -rf "$file"
-done
+function remove_old {
+    while :; do
+        echo "Checking for old directories..."
 
-DEST="$DESTINATION/$NOW"
+        if [ "$now" != "$(date +"%d-%m-%y")" ] || $initial_run
+        then
 
+            # Update variables
+            dest="${destination}/${now}"
+            initial_run=false
+            now=$(date +"%d-%m-%y")
 
-echo "Cloning files and folders newer than $DAYS days."
-echo
-echo "Copying new files..."
+            # Delete old directories
+            while [[ $(find "$destination" -maxdepth 1 -type d | wc -l) -gt $((days + 1)) ]]
+            do
+                IFS= read -r -d $'\0' line < <(find "$destination" -maxdepth 1 -printf '%T@ %p\0' 2>/dev/null | sort -z -n)
+                file="${line#* }"
 
-rsync -RDa0Pv --files-from=<(find $SOURCE -mtime -$DAYS -print0) / $DEST
+                echo $file
+                rm -rf "$file"
+            done
+        fi
 
-echo
+        # Sleep for 1h
+        echo "Sleeping..."
+        sleep 3600
+
+    done
+}
+
+function monitor {
+    inotifywait -m -r -e create,modify --format '%w%f' "${source}" | while read newfile
+    do
+        rsync -RDa0 "${newfile}" ${sync_dest}
+    done
+}
+
+# --- END OF FUNCTIONS ---
+
+monitor & remove_old
