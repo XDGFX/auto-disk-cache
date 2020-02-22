@@ -42,7 +42,7 @@ function remove_old {
         fi
 
         # Sleep for 1h
-        echo "Sleeping..."
+        echo "Cleanup job sleeping..."
         sleep 3600
 
     done
