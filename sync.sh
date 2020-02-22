@@ -7,7 +7,7 @@ echo "Running on $NOW $(date +"%T")"
 
 # -- START OF VARIABLES --
 
-SOURCE=/mnt/uluru/Documents
+SOURCE=/mnt/uluru
 DESTINATION=/media/wombat/auto-disk-cache
 DAYS=7
 
@@ -31,6 +31,6 @@ echo "Cloning files and folders newer than $DAYS days."
 echo
 echo "Copying new files..."
 
-#rsync -RDa0Pv --files-from=<(find $SOURCE -mtime -$DAYS -print0) / $DEST
+rsync -RDa0Pv --files-from=<(find $SOURCE -mtime -$DAYS -print0) / $DEST
 
 echo
